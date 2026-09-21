@@ -1,0 +1,195 @@
+pipeline:
+  name: node-harness-demo
+  identifier: nodeharnessdemo
+  projectIdentifier: default_project
+  orgIdentifier: default
+  tags: {}
+  variables:
+    - name: IMAGE_REPO
+      type: String
+      value: <+input>
+    - name: IMAGE_TAG
+      type: String
+      value: <+input>
+    - name: BUILD_DOCKER
+      type: String
+      value: <+input>
+  properties:
+    ci:
+      codebase:
+        connectorRef: Demo
+        repoName: node-harness-demo
+        build: <+input>
+  stages:
+    - stage:
+        name: node build
+        identifier: node_build
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          caching:
+            enabled: true
+            override: true
+          buildIntelligence:
+            enabled: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - stepGroup:
+                  name: Validation
+                  identifier: Validation
+                  steps:
+                    - step:
+                        type: Run
+                        name: Install Dependencies
+                        identifier: install_deps
+                        spec:
+                          shell: Sh
+                          image: node:<+stepGroup.variables.NODE_VERSION>-alpine
+                          command: |
+                            npm install
+                    - step:
+                        type: Run
+                        name: Run Tests
+                        identifier: run_tests
+                        spec:
+                          shell: Sh
+                          image: node:<+stepGroup.variables.NODE_VERSION>-alpine
+                          command: |
+                            npm test
+                    - step:
+                        type: Run
+                        name: Lint Check
+                        identifier: lint_check
+                        spec:
+                          shell: Sh
+                          image: node:<+stepGroup.variables.NODE_VERSION>-alpine
+                          command: |
+                            echo "Lint Passed"
+                  variables:
+                    - name: NODE_VERSION
+                      type: String
+                      value: "22"
+                      description: ""
+                      required: false
+                  failureStrategies:
+                    - onFailure:
+                        errors:
+                          - Timeout
+                        action:
+                          type: RetryStepGroup
+                          spec:
+                            retryCount: 2
+                            retryIntervals:
+                              - 10s
+              - step:
+                  type: Run
+                  name: matrix-demo-step
+                  identifier: matrixdemostep
+                  strategy:
+                    matrix:
+                      NODE_VERSION:
+                        - "20"
+                        - "22"
+                  spec:
+                    shell: Sh
+                    command: |-
+                      echo "===================================="
+                                    echo "Current Matrix Node Version:"
+                                    echo "<+matrix.NODE_VERSION>"
+                                    echo "===================================="
+              - step:
+                  type: Run
+                  name: Verify Secret Reference
+                  identifier: verify_secret_reference
+                  spec:
+                    shell: Sh
+                    image: alpine:latest
+                    envVariables:
+                      DEMO_API_TOKEN: <+secrets.getValue("demo_api_token")>
+                    command: |
+                      if [ -n "$DEMO_API_TOKEN" ]; then
+                        echo "Secret <+secrets.getValue("demo_api_token")> resolved successfully"
+                      else
+                        echo "Secret was not resolved"
+                        exit 1
+                      fi
+              - step:
+                  type: Run
+                  name: Generate Image Tag
+                  identifier: generate_image_tag
+                  spec:
+                    shell: Sh
+                    image: alpine:latest
+                    command: |
+                      export GENERATED_IMAGE_TAG="build-<+pipeline.sequenceId>"
+                      echo "Generated tag: $GENERATED_IMAGE_TAG"
+                    outputVariables:
+                      - name: GENERATED_IMAGE_TAG
+                    type: String
+                    value: GENERATED_IMAGE_TAG
+              - step:
+                  type: Run
+                  name: Show Generated Tag
+                  identifier: show_generated_tag
+                  spec:
+                    shell: Sh
+                    image: alpine:latest
+                  command: |
+                    echo "Tag from earlier step:"
+                    echo "<+execution.steps.generate_image_tag.output.outputVariables.GENERATED_IMAGE_TAG>"
+    - stage:
+        name: Approve Docker image creation
+        identifier: Approve_Docker_image_creation
+        description: ""
+        type: Approval
+        spec:
+          execution:
+            steps:
+              - step:
+                  name: Approve docker push
+                  identifier: Approve_docker_push
+                  type: HarnessApproval
+                  timeout: 1d
+                  spec:
+                    approvalMessage: |-
+                      Please review the following information
+                      and approve the pipeline progression
+                    includePipelineExecutionHistory: true
+                    approvers:
+                      minimumCount: 1
+                      disallowPipelineExecutor: false
+                      userGroups:
+                        - account._account_all_users
+                    isAutoRejectEnabled: false
+                    approverInputs: []
+        tags: {}
+    - stage:
+        name: docker build
+        identifier: docker_build
+        when:
+          pipelineStatus: Success
+          condition: <+pipeline.variables.BUILD_DOCKER> == "true"
+        template:
+          templateRef: dockerbuildtemplate
+          versionLabel: v1
+  notificationRules:
+    - name: " Node Pipeline Failure"
+      identifier: Node_Pipeline_Failure
+      pipelineEvents:
+        - type: StageFailed
+          forStages:
+            - Approve_Docker_image_creation
+      notificationMethod:
+        type: Email
+        spec:
+          userGroups: []
+          recipients:
+            - vanitha.r.ramamurthy@accenture.com
+      enabled: true
