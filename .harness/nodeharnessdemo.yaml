@@ -63,6 +63,11 @@ pipeline:
                           image: node:<+stepGroup.variables.NODE_VERSION>-alpine
                           command: |
                             npm test
+                          reports:
+                            type: JUnit
+                            spec:
+                              paths:
+                                - test-results/junit.xml
                     - step:
                         type: Run
                         name: Lint Check
@@ -71,7 +76,7 @@ pipeline:
                           shell: Sh
                           image: node:<+stepGroup.variables.NODE_VERSION>-alpine
                           command: |
-                            echo "Lint Passed"
+                            echo "Lint Passed"                          
                   variables:
                     - name: NODE_VERSION
                       type: String
