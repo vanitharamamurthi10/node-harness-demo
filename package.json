@@ -1,11 +1,20 @@
 {
   "name": "harness-practice",
   "version": "1.0.0",
+  "description": "Node.js demo app for Harness CI",
   "dependencies": {
-    "lodash": "^4.17.21",
-    "axios": "^1.12.2"
+    "lodash": "^4.17.21"
   },
+
   "scripts": {
-    "test": "echo All tests passed"
+    "test": "jest --ci --reporters=default --reporters=jest-junit"
+  },
+  "devDependencies": {
+    "jest": "latest",
+    "jest-junit": "latest"
+  },
+  "jest-junit": {
+    "outputDirectory": "test-results",
+    "outputName": "junit.xml"
   }
 }
