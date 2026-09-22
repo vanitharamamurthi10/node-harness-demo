@@ -1,0 +1,25 @@
+inputSet:
+  name: node-dev
+  tags: {}
+  identifier: nodedev
+  orgIdentifier: default
+  projectIdentifier: default_project
+  pipeline:
+    identifier: nodeharnessdemo
+    variables:
+      - name: IMAGE_REPO
+        type: String
+        value: ghcr.io/vanitharamamurthi10/node-harness-demo
+      - name: IMAGE_TAG
+        type: String
+        value: latest
+      - name: BUILD_DOCKER
+        type: String
+        value: "true"
+    properties:
+      ci:
+        codebase:
+          build:
+            type: branch
+            spec:
+              branch: main
