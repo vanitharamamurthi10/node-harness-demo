@@ -1,0 +1,43 @@
+pipeline:
+  name: docker-release-demo
+  identifier: dockerreleasedemo
+  projectIdentifier: default_project
+  orgIdentifier: default
+  variables:
+    - name: IMAGE_TAG_FROM_PARENT
+      type: String
+      value: <+input>
+  properties:
+    ci:
+      codebase:
+        connectorRef: Demo
+        repoName: node-harness-demo
+        build: <+input>
+  stages:
+    - stage:
+        name: test
+        identifier: test
+        description: ""
+        type: CI
+        spec:
+          cloneCodebase: true
+          caching:
+            enabled: true
+            override: true
+          buildIntelligence:
+            enabled: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Run_1
+                  identifier: Run_1
+                  spec:
+                    shell: Sh
+                    command: echo "test step run_1"
