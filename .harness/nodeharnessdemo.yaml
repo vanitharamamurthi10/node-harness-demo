@@ -141,9 +141,9 @@ pipeline:
                   spec:
                     shell: Sh
                     image: alpine:latest
-                  command: |
-                    echo "Tag from earlier step:"
-                    echo "<+execution.steps.generate_image_tag.output.outputVariables.GENERATED_IMAGE_TAG>"
+                    command: |
+                      echo "Tag from earlier step:"
+                      echo "<+execution.steps.generate_image_tag.output.outputVariables.GENERATED_IMAGE_TAG>"
     - stage:
         name: Approve Docker image creation
         identifier: Approve_Docker_image_creation
