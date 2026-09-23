@@ -13,6 +13,10 @@
     "jest": "latest",
     "jest-junit": "latest"
   },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverageFrom": ["src/**/*.js"]
+  },
   "jest-junit": {
     "outputDirectory": "test-results",
     "outputName": "junit.xml"
