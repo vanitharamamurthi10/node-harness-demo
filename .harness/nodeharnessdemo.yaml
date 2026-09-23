@@ -154,16 +154,6 @@ pipeline:
                       echo "Repository: <+codebase.repoUrl>"
                       echo "Triggered by: <+pipeline.triggeredBy.name>"
                       echo "Image tag: <+execution.steps.generate_image_tag.output.outputVariables.GENERATED_IMAGE_TAG>"
-              - step:
-                  type: Run
-                  name: Show Generated Tag
-                  identifier: show_generated_tag
-                  spec:
-                    shell: Sh
-                    image: alpine:latest
-                    command: |
-                      echo "Tag from earlier step:"
-                      echo "<+execution.steps.generate_image_tag.output.outputVariables.GENERATED_IMAGE_TAG>"
     - stage:
         name: Approve Docker image creation
         identifier: Approve_Docker_image_creation
