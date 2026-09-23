@@ -104,11 +104,9 @@ pipeline:
                         - "22"
                   spec:
                     shell: Sh
-                    command: |-
-                      echo "===================================="
-                                    echo "Current Matrix Node Version:"
-                                    echo "<+matrix.NODE_VERSION>"
-                                    echo "===================================="
+                    command: |
+                      echo "Current Matrix Node Version: <+matrix.NODE_VERSION>"
+                      node --version
               - step:
                   type: Run
                   name: Verify Secret Reference
