@@ -140,6 +140,22 @@ pipeline:
                     value: GENERATED_IMAGE_TAG
               - step:
                   type: Run
+                  name: Build Metadata Summary
+                  identifier: build_metadata_summary
+                  spec:
+                    shell: Sh
+                    image: alpine:latest
+                    command: |
+                      echo "Pipeline : <+pipeline.name>"
+                      echo "Sequence : <+pipeline.sequenceId>"
+                      echo "Execution: <+pipeline.executionId>"
+                      echo "Branch   : <+codebase.branch>"
+                      echo "Commit   : <+codebase.commitSha>"
+                      echo "Repository: <+codebase.repoUrl>"
+                      echo "Triggered by: <+pipeline.triggeredBy.name>"
+                      echo "Image tag: <+execution.steps.generate_image_tag.output.outputVariables.GENERATED_IMAGE_TAG>"
+              - step:
+                  type: Run
                   name: Show Generated Tag
                   identifier: show_generated_tag
                   spec:
