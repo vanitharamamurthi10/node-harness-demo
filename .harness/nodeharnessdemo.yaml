@@ -63,6 +63,7 @@ pipeline:
                           image: node:<+stepGroup.variables.NODE_VERSION>-alpine
                           command: |
                             npm test
+                            test -f coverage/lcov.info
                           reports:
                             type: JUnit
                             spec:
