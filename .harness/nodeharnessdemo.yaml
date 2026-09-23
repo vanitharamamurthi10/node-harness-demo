@@ -62,8 +62,8 @@ pipeline:
                           shell: Sh
                           image: node:<+stepGroup.variables.NODE_VERSION>-alpine
                           command: |
-                            npm test
-                            test -f coverage/lcov.info
+                            chmod +x scripts/*.sh
+                            ./scripts/run-tests.sh
                           reports:
                             type: JUnit
                             spec:
