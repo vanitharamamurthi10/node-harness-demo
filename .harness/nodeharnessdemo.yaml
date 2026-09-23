@@ -166,7 +166,7 @@ pipeline:
                   name: Approve docker push
                   identifier: Approve_docker_push
                   type: HarnessApproval
-                  timeout: 1d
+                  timeout: 30m
                   spec:
                     approvalMessage: |-
                       Please review the following information
